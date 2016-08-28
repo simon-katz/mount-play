@@ -51,7 +51,7 @@ is defined implicitly, by evaluating `defstate`s that in turn evaluate other
 One thing that confused me with some of the documentation is that it often talks
 about namespaces, in a way that initially made me think that maybe there could
 only be one `defstate` in a namespace. If I understand correctly, Mount is
-orthoginal to namespaces. It relies on vars, and that's all. (The fact that vars
+orthogonal to namespaces. It relies on vars, and that's all. (The fact that vars
 reside in namespaces seems to me to be mostly irrelevant to how Mount works. I
 know that Mount does clever things when a namespace is recompiled, but I think
 that can be seen as a layer on top of the basic functionality.)
