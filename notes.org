@@ -1,0 +1,10 @@
+* Notes on mount
+** Docs talk a lot about namespaces
+*** as if there can be one `defstate` per namespace
+*** maybe that was the case at one time
+*** the `defstate` macro does something with `*ns*`, which is weird
+*** See [[*Interesting%20comment%20in%20`mount.tools.graph`][Interesting comment in `mount.tools.graph`]]
+** :deps doesn't work
+*** See [[*Interesting%20comment%20in%20`mount.tools.graph`][Interesting comment in `mount.tools.graph`]]
+** Interesting comment in `mount.tools.graph`
+*** that deps should be state-based, not ns-based
