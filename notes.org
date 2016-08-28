@@ -1,6 +1,9 @@
 * Notes on mount
+** Interesting discussion at [[https://www.reddit.com/r/Clojure/comments/3zppdn/the_beauty_of_clojure/][this Reddit conversation]]
 ** What it is etc
 *** Uses global vars to hold state
+**** Can be read by any function -- not A Good Thing
+***** (But you don't have to read, I guess)
 *** Like Component, except:
 **** The dependency tree is defined easily by evaluating forms
 ***** that create state
@@ -10,6 +13,16 @@
 *** A state is stopped and started when re-evaluated
 **** Doc at [[https://github.com/tolitius/mount#recompiling-namespaces-with-running-states][Recompiling Namespaces with Running States]] talks about namespaces
 ***** but it works fine with C-M-x
+** Things missing
+*** Can't have a variable number of instances of state
+**** Because global vars
+**** e.g. Create N queues
+**** Hmmm, but you could have a thing with N queues in it
+*** Cannot run two mount systems side by side made up of different pieces
+**** Because global vars
+**** Easy, but not simple (because things are coupled)
+*** Deps
+*** ? Protocols at test boundaries (or is that orthogonal?)
 ** Confusing stuff
 *** Docs talk a lot about namespaces
 **** as if there can be one `defstate` per namespace
