@@ -1,10 +1,89 @@
 * Notes on mount
-** Docs talk a lot about namespaces
-*** as if there can be one `defstate` per namespace
-*** maybe that was the case at one time
-*** the `defstate` macro does something with `*ns*`, which is weird
-*** See [[*Interesting%20comment%20in%20`mount.tools.graph`][Interesting comment in `mount.tools.graph`]]
-** :deps doesn't work
-*** See [[*Interesting%20comment%20in%20`mount.tools.graph`][Interesting comment in `mount.tools.graph`]]
-** Interesting comment in `mount.tools.graph`
-*** that deps should be state-based, not ns-based
+** What it is etc
+*** Uses global vars to hold state
+*** Like Component, except:
+**** The dependency tree is defined easily by evaluating forms
+***** that create state
+**** The definition of the dependency tree is spread across multiple `defstates`
+**** You need to arrange for namespaces to be loaded
+***** so that the `defstate`s get evaluated
+*** A state is stopped and started when re-evaluated
+**** Doc at [[https://github.com/tolitius/mount#recompiling-namespaces-with-running-states][Recompiling Namespaces with Running States]] talks about namespaces
+***** but it works fine with C-M-x
+** Confusing stuff
+*** Docs talk a lot about namespaces
+**** as if there can be one `defstate` per namespace
+**** maybe that was the case at one time
+**** the `defstate` macro does something with `*ns*`, which is weird
+**** See [[*Interesting%20comment%20in%20`mount.tools.graph`][Interesting comment in `mount.tools.graph`]]
+*** :deps doesn't work
+**** See [[*Interesting%20comment%20in%20`mount.tools.graph`][Interesting comment in `mount.tools.graph`]]
+*** Interesting comment in `mount.tools.graph`
+**** that deps should be state-based, not ns-based
+* Draft email
+
+(I was looking at issue https://github.com/tolitius/mount/issues/12, about
+dependency graphs.)
+
+Hi.
+
+I've just taken a proper look at Mount for the first time, as a possible
+alternative to Component.
+
+It seems to me that the main difference is that with Mount the dependency graph
+is defined implicitly, by evaluating `defstate`s that in turn evaluate other
+`defstate's. So the definition of the dependency tree is spread across multiple
+`defstate`s, rather than being in one central place.
+
+One thing that confused me with some of the documentation is that it often talks
+about namespaces, in a way that initially made me think that maybe there could
+only be one `defstate` in a namespace. If I understand correctly, Mount is
+orthoginal to namespaces. It relies on vars, and that's all. (The fact that vars
+reside in namespaces seems to me to be mostly irrelevant to how Mount works. I
+know that Mount does clever things when a namespace is recompiled, but I think
+that can be seen as a layer on top of the basic functionality.)
+
+Some of the comments in this thread talk about namespaces. I don't understand
+why.
+
+One way to compute the dependency graph would be to have a dynamic var
+*current-states* (can be a list, with top-level value being the empty list) that
+defines all the defstates that are currently being defined. `defstate` would
+expand so that the :start form is wrapped
+
+```
+(def ^:dynamic *deps* (atom []))
+
+(defmacro with-defstate [{:keys [id]} & body]
+  `(do
+     (swap! *deps* conj ~id)
+     (binding [*deps* (atom [])]
+       (println "==== @*deps* =" @*deps*)
+       (let [res# (do ~@body)]
+         {:res res#
+          :deps @*deps*}))))
+
+
+(defmacro make-thing [v]
+  `(do (println "===== Starting" ~v)
+       (with-defstate {:id '~v}
+         ~v)))
+
+(mount/defstate thing-a
+  :start (make-thing :a)
+  :stop (println "===== Stopping thing-a, which is" thing-a))
+
+(mount/defstate thing-b
+  :start (make-thing :b)
+  :stop (println "===== Stopping thing-b, which is" thing-b))
+
+(mount/defstate thing-c
+  :start (make-thing {:a thing-a
+                      :b thing-b})
+  :stop (println "===== Stopping thing-c, which is" thinz-c))
+```
+
+The expansion can blah blah blah.
+
+Ah -- doesn't work, because these are `defonce`s, and so the dynamic scope you
+want doesn't exist.
