@@ -1,10 +1,10 @@
 * Notes on mount
 ** Interesting discussion at [[https://www.reddit.com/r/Clojure/comments/3zppdn/the_beauty_of_clojure/][this Reddit conversation]]
 ** What it is etc
-*** Uses global vars to hold state
-**** Can be read by any function -- not A Good Thing
-***** (But you don't have to read, I guess)
 *** Like Component, except:
+**** Uses global vars to hold state
+***** Can be read by any function -- not A Good Thing
+****** (But you don't have to read, I guess)
 **** The dependency tree is defined easily by evaluating forms
 ***** that create state
 **** The definition of the dependency tree is spread across multiple `defstates`
@@ -22,11 +22,12 @@
 **** Because global vars
 **** Easy, but not simple (because things are coupled)
 *** Deps
-*** ? Protocols at test boundaries (or is that orthogonal?)
+*** Ability to have test doubles that can be swapped in
 ** Confusing stuff
 *** Docs talk a lot about namespaces
 **** as if there can be one `defstate` per namespace
 **** maybe that was the case at one time
+**** ah, you have to load namespaces for the `defstate`s to be evaluated
 **** the `defstate` macro does something with `*ns*`, which is weird
 **** See [[*Interesting%20comment%20in%20`mount.tools.graph`][Interesting comment in `mount.tools.graph`]]
 *** :deps doesn't work
